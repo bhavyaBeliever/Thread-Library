@@ -1,0 +1,24 @@
+What all to do?
+
+* Read Textbook chapter for threading
+* Write pthread library programs for matrix multiplication, factorial.
+* Read clone, and try clone in all possible ways
+* Get clarity about the flow of code, from app-> lib-> clone and return
+* Startt designing 1-1 implementation by defining user-land functions on line of pthreads
+* Finish 1-1
+* Read about signals
+* Read about setcontext(), getcontext() or alternatively about setjmp, longjmp
+* Brainstrom on how to context-switch in user-land combining signals and context code.
+
+* implement many-1
+* implement many-many
+
+
+
+
+
+
+
+
+
+
