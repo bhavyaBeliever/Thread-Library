@@ -1,0 +1,32 @@
+# Ignore compiled binary files
+*.o
+*.out
+*.a
+*.so
+*.exe
+*.dll
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore temporary files
+*.swp
+*.swo
+*.tmp
+*.log
+*.bak
+*.~*
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore build files (common for C/C++)
+build/
+cmake-build-debug/
+
