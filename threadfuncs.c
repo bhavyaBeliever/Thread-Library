@@ -6,6 +6,7 @@
 #define STACK_SIZE 8192
 
 int thread_count = 0;
+int counter = 0;
 abthread *current_thread = NULL;  // Pointer to the currently running thread
 abthread *thread_head = NULL;     // Circular linked list head
 
@@ -17,7 +18,7 @@ int thread_create(abthread **new_thread, void (*func)(void)) {
         return -1;
     }
 
-    (*new_thread)->id = ++thread_count;
+    (*new_thread)->tid = ++thread_count;
     (*new_thread)->state = READY;
     (*new_thread)->stack = malloc(STACK_SIZE);
     if (!(*new_thread)->stack) {
@@ -32,7 +33,7 @@ int thread_create(abthread **new_thread, void (*func)(void)) {
         void *stack_top = (char *)(*new_thread)->stack + STACK_SIZE;
         asm volatile("mov %0, %%rsp" :: "r"(stack_top)); // Set stack pointer
         func();  // Run the function
-        thread_exit(); // Exit when function completes
+        thread_exit(NULL); // Exit when function completes
     }
 
     // Add the thread to the circular linked list
@@ -52,26 +53,39 @@ int thread_create(abthread **new_thread, void (*func)(void)) {
 }
 
 
-void thread_exit() {
-    if (!current_thread) {
-        printf("Error: No thread is currently running.\n");
-        return;
+int thread_join(abthread *thread, void **retval) {
+    if (!thread) return -1;
+
+    while (thread->state != TERMINATED) {
+        if (thread_head) {  // If no threads are left, exit the loop
+            printf("All threads have exited.\n");
+            return 0;
+        }
+
+        thread_yield(); 
     }
 
-    printf("Thread %d exiting...\n", current_thread->id);
-    current_thread->state = TERMINATED;
+    if (retval) {
+        *retval = thread->retval;
+    }
 
-    // Remove the thread from the circular linked list
-    abthread *temp = thread_head;
-    abthread *prev = NULL;
+    return 0;
+}
+
+void thread_exit(void *retval) {
+    if (!current_thread) return;
+
+    printf("Thread %d exiting...\n", current_thread->tid);
+    current_thread->state = TERMINATED;
+    current_thread->retval = retval;
+
+    abthread *temp = thread_head, *prev = NULL;
 
     if (current_thread == thread_head) {
-        if (thread_head->next == thread_head) {  // Only one thread exists
+        if (thread_head->next == thread_head) {  // Last thread
             thread_head = NULL;
         } else {
-            while (temp->next != thread_head) {  // Find the last node
-                temp = temp->next;
-            }
+            while (temp->next != thread_head) temp = temp->next;
             thread_head = current_thread->next;
             temp->next = thread_head;
         }
@@ -85,13 +99,33 @@ void thread_exit() {
     }
 
     free(current_thread->stack);
-    free(current_thread);
-
+    
     if (thread_head) {
-        current_thread = thread_head;  // Switch to next thread
+        abthread *next_thread = thread_head;
+        free(current_thread);
+        current_thread = next_thread;
         longjmp(current_thread->env, 1);
     } else {
         printf("No more threads to run. Exiting...\n");
         exit(0);
+    }
+}
+
+void thread_yield() {
+    if (!current_thread || !thread_head) {
+        printf("No more threads to yield.\n");
+        return;
+    }
+
+    abthread *prev_thread = current_thread;
+    abthread *next_thread = current_thread->next;
+
+    if (current_thread == prev_thread) {
+        printf("Deadlock detected: All threads stuck.\n");
+        return;
+    }
+
+    if (setjmp(prev_thread->env) == 0) {
+        longjmp(current_thread->env, 1);
     }
 }
