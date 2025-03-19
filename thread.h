@@ -11,6 +11,7 @@ typedef int t_tid;
 typedef enum { READY, RUNNING, BLOCKED, TERMINATED } thread_state;
 
 typedef struct abthread {
+	void *retval;             // Return value of the thread
 	t_tid tid;                      //unique id of thread
 	jmp_buf env;		      //context for setjmp/longjmp-based scheduling	
 	thread_state state;	      //Current state of the thread
@@ -20,17 +21,18 @@ typedef struct abthread {
 	
 	
 int thread_create(abthread **new_thread, void (*func)(void));
-void thread_exit();
+void thread_exit(void *retval);
+int thread_join(abthread * thread, void **retval);
+void thread_yield();
+// typedef struct threadNode
+// {
+//     abthread *thread;
+//     struct threadNode *previous;
+//     struct threadNode *next;    
+// }threadNode;
 
-typedef struct threadNode
-{
-    abthread *thread;
-    struct threadNode *previous;
-    struct threadNode *next;    
-}threadNode;
-
-typedef struct threadNode *threadPool;  
+// typedef struct threadNode *threadPool;  
 
 
-void add();
-void remove();
+// void add();
+// void remove();
