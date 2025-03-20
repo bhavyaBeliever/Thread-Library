@@ -3,50 +3,34 @@
 #include <setjmp.h>
 #include "thread.h"
 
+#define _SCHED_H 1
+#define __USE_GNU 1
+#include <bits/sched.h>
+
 #define STACK_SIZE 8192
 
-int thread_count = 0;
-abthread *current_thread = NULL;  // Pointer to the currently running thread
-abthread *thread_head = NULL;     // Circular linked list head
+t_tid thread_count = 0;
+abthread *current_thread = NULL;
+abthread *thread_head = NULL;     
 
 // Function to create a new thread
-int thread_create(abthread **new_thread, void (*func)(void)) {
-    *new_thread = (abthread *)malloc(sizeof(abthread));
-    if (!(*new_thread)) {
+int thread_create(t_tid *t, void (*entryPoint)(void), void *arg) {
+    abthread *newThread = (abthread *)malloc(sizeof(abthread));
+    if (!(newThread)) {
         perror("Failed to allocate memory for thread");
         return -1;
     }
 
-    (*new_thread)->id = ++thread_count;
-    (*new_thread)->state = READY;
-    (*new_thread)->stack = malloc(STACK_SIZE);
-    if (!(*new_thread)->stack) {
+    newThread->tid = ++thread_count;
+    newThread->stack = malloc(STACK_SIZE);
+    if (!(newThread)->stack) {
         perror("Failed to allocate stack");
-        free(*new_thread);
+        free(newThread);
         return -1;
     }
-
-    // Set up the stack frame for the new thread
-    if (setjmp((*new_thread)->env) == 0) {
-        // Modify the stack pointer to point to the top of the allocated stack
-        void *stack_top = (char *)(*new_thread)->stack + STACK_SIZE;
-        asm volatile("mov %0, %%rsp" :: "r"(stack_top)); // Set stack pointer
-        func();  // Run the function
-        thread_exit(); // Exit when function completes
-    }
-
-    // Add the thread to the circular linked list
-    if (!thread_head) {
-        thread_head = *new_thread;
-        (*new_thread)->next = thread_head;
-    } else {
-        abthread *temp = thread_head;
-        while (temp->next != thread_head) {
-            temp = temp->next;
-        }
-        temp->next = *new_thread;
-        (*new_thread)->next = thread_head;
-    }
+    
+    int thread_id = clone(&entryPoint, newThread->stack+STACK_SIZE, SIGCHLD |CLONE_SIGHAND|CLONE_FS|CLONE_VM|CLONE_FILES | CLONE_THREAD, arg, NULL);
+    newThread->state = DETACHED;
 
     return 0;
 }

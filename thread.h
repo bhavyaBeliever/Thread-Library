@@ -8,14 +8,13 @@
 #define STACK_SIZE 8192
 
 typedef int t_tid;
-typedef enum { READY, RUNNING, BLOCKED, TERMINATED } thread_state;
+typedef enum { DETACHED, JOINABLE, JOINED } thread_state;
 
 typedef struct abthread {
-	t_tid tid;                      //unique id of thread
+	t_tid tid;                 
 	jmp_buf env;		      //context for setjmp/longjmp-based scheduling	
-	thread_state state;	      //Current state of the thread
-	void *stack;		      // Stack memory for the thread
-	struct abthread * next;	      // Pointer to the next thread for scheduling (Circular linked list)
+	thread_state state;	      
+	char *stack;		      
 } abthread;
 	
 	
