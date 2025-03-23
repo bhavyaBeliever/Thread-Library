@@ -17,9 +17,21 @@ void add(abthread *newThread){
         newThreadNode->previous = pool->previous;
         pool->previous = newThreadNode;
     }
-    
-
 }
-void remove(){
+void removeNode(threadNode *node){
+    node->previous->next = node->next;
+    node->next->previous = node->previous;
+    free(node);
+    return;
+}
+threadNode *search(t_tid *t){
+    threadNode *ptr = pool;
+    while(ptr->next != pool){
+        if(ptr->thread->tid == *t){
+            return ptr;
+        }
+        ptr = ptr->next;
 
+    }
+    return NULL;
 }
