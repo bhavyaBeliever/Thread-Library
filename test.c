@@ -31,7 +31,7 @@ int main() {
     t_tid t1, t2;
     struct factorialInput input1, input2;
     input1.start = 1;
-    input1.end = n / 4;
+    input1.end = n / 2;
     input2.start = n / 2 + 1;
     input2.end = n;
 
@@ -40,16 +40,11 @@ int main() {
 
     void *returnValue1, *returnValue2;
     thread_join(&t1, &returnValue1);
-    thread_join(&t2, &returnValue2);
-
+    int join_status = thread_join(&t2, &returnValue2);
     int *ans1 = (int *)returnValue1;
     int *ans2 = (int *)returnValue2;
     int result = (*ans1) * (*ans2);
 
     printf("Factorial of %d is %d\n", n, result);
-
-    free(ans1);
-    free(ans2);
-
     return 0;
 }

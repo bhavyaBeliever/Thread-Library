@@ -41,6 +41,7 @@ int thread_join(t_tid *t, void **retval);
 void thread_yield();
 
 
+int futex(int *uaddr, int futex_op, int val);
 
 void add(abthread *newThread);
 void removeNode(threadNode *node);

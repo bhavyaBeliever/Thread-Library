@@ -6,7 +6,6 @@ void add(abthread *newThread){
     
     threadNode *newThreadNode = (threadNode *)malloc(sizeof(threadNode));    
     newThreadNode->thread = newThread;
-    newThreadNode->next = pool;
     if (!pool) {
         pool = newThreadNode;
         newThreadNode->previous = pool;
@@ -17,19 +16,32 @@ void add(abthread *newThread){
         newThreadNode->previous = pool->previous;
         pool->previous = newThreadNode;
     }
+    newThreadNode->next = pool;
 }
 void removeNode(threadNode *node){
-    node->previous->next = node->next;
-    node->next->previous = node->previous;
-    free(node);
+    if (!node) return;
+    if (node == node->previous && node->next == node){
+        free(node);
+        pool = NULL;
+        return;
+    }
+    if (node->next){
+        node->next->previous = node->previous;
+    }    
+    if (node-> previous){
+        node->previous->next = node->next;
+    }   
+    
     return;
 }
 threadNode *search(t_tid *t){
     threadNode *ptr = pool;
-    while(ptr->next != pool){
+    threadNode *start = NULL;
+    while(ptr != start){
         if(ptr->thread->tid == *t){
             return ptr;
         }
+        if (!start) start = ptr;
         ptr = ptr->next;
 
     }
