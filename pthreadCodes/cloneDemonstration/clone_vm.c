@@ -15,6 +15,7 @@ int func(void *arg) {
     int count = *((int *)arg);
     printf("Inside func.\n");
     sleep(10*count);
+    printf("%d", count);
     printf("Terminating func...\n");
 
     return 1;
@@ -37,22 +38,21 @@ int main() {
         printf("%c", ch);
     }
     printf("Creating new thread...\n");
-    int count1 = 1;
-    thread_pid1 = clone(&func, child_stack1+STACK_SIZE, SIGCHLD |CLONE_SIGHAND|CLONE_FS|CLONE_VM|CLONE_FILES | CLONE_THREAD, &count1, NULL);
-    int count2 = 2;
-    thread_pid2 = clone(&func, child_stack2+STACK_SIZE, SIGCHLD |CLONE_SIGHAND|CLONE_FS|CLONE_VM|CLONE_FILES | CLONE_THREAD, &count2, NULL);
+    int *count1 = (int *)malloc(sizeof(int));
+    *count1 = 1;
+    thread_pid1 = clone(&func, child_stack1+STACK_SIZE, 0 | CLONE_VM , count1, NULL);
+    *count1 = 2;
+    printf("%d ", *count1);
+    
     printf("Done! Thread pid: %d\n", thread_pid1);
-    printf("Done! Thread pid: %d\n", thread_pid2);
-
-    FILE *fp = fopen(status_file, "rb");
 
     printf("Looking into %s...\n", status_file);
 
-    while(1) {
-        char ch = fgetc(fp);
-        if(feof(fp)) break;
-        printf("%c", ch);
-    }
+    // while(1) {
+    //     char ch = fgetc(fp);
+    //     if(feof(fp)) break;
+    //     printf("%c", ch);
+    // }
 
     fclose(fp);
     int wstatus;

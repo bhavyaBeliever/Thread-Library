@@ -59,8 +59,8 @@ int thread_create(t_tid *t, abthread_attr_t *attr, void *(*entryPoint)(void *), 
 }
 
 
-int thread_join(t_tid *t, void **retval) {
-    threadNode *node = search(t);
+int thread_join(t_tid t, void **retval) {
+    threadNode *node = search(&t);
     if(!node) return -1;
     abthread *thread = node->thread;
     futex(&thread->state, FUTEX_WAIT, RUNNING);

@@ -37,7 +37,7 @@ typedef struct threadNode *threadPool;
 
 int thread_create(t_tid *t, abthread_attr_t* attr, void *(*entryPoint)(void *), void *arg);
 void thread_exit(void *retval);
-int thread_join(t_tid *t, void **retval);
+int thread_join(t_tid t, void **retval);
 void thread_yield();
 
 
