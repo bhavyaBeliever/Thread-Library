@@ -36,7 +36,6 @@ int main() {
         return 1;
     }
     
-    // Wait for the timer to expire
     while (1)
     {       
         /* code */

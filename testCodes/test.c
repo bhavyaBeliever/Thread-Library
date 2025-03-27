@@ -1,5 +1,5 @@
 
-#include "../one-one/thread.h"
+#include "../many-one/thread.h"
 
 struct factorialInput {
     int start;
@@ -36,14 +36,14 @@ int main() {
     input2.end = n;
 
     thread_create(&t1, NULL, &factorial, &input1);
-    thread_create(&t2, NULL, &factorial, &input2);
+    // thread_create(&t2, NULL, &factorial, &input2);
 
     void *returnValue1, *returnValue2;
     thread_join(t1, &returnValue1);
-    int join_status = thread_join(t2, &returnValue2);
+    // int join_status = thread_join(t2, &returnValue2);
     int *ans1 = (int *)returnValue1;
-    int *ans2 = (int *)returnValue2;
-    int result = (*ans1) * (*ans2);
+    // int *ans2 = (int *)returnValue2;
+    int result = *ans1;
 
     printf("Factorial of %d is %d\n", n, result);
     return 0;
